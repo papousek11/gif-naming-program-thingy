@@ -1,13 +1,12 @@
 from PIL import Image
 from os import walk
+import os.path
 import random
-import keyboard
 import pygame
 
 
 
 files = []
-User_input_box = pygame.Rect(100,100,140,32)
 Image_origin_loader = Image
 Image_origin_loader_for_rendering = Image
 Image_Size = (260,144)
@@ -15,11 +14,18 @@ Display_image_out = pygame.image.load("zacatek.png")
 Image_Index = 0
 name = ""
 editing_mode = False
-temp_string = ""
+
+def CheckForDirectories():
+    #took me like 10 minutes to realize os.path.isfile does not work on directories
+    if not os.path.exists("./import"):
+        os.mkdir("./import")
+    if not os.path.exists("./export"):
+        os.mkdir("./export")
+
 
 
 def velmi_dulezita_random_int_funkce():
-    #jestli se budou jmenovat dva stejně tak to tak chtel buh asi
+    #jestli se budou jmenovat dva stejně tak to tak chtel bůh asi
     randoms = random.randint(0,100000)
     return randoms
 
@@ -32,7 +38,7 @@ def Save_current_image():
     name = ""
     return
 
-def images_nemes():
+def ImagesNames():
     for(dirpath, dirnames, filenames) in walk("./import"):
         files.extend(filenames)
     
@@ -51,10 +57,15 @@ def Temp_image_edit():
     else:
         Image_origin_loader_for_rendering = Image.open("./import/"+files[Image_Index])
         Image_origin_loader = Image_origin_loader_for_rendering.resize(Image_Size)
-        Image_origin_loader.save("temp.png")
-        Display_image_out = pygame.image.load("./temp.png")
+        
+        if Image_origin_loader.mode not in ("RGB", "RGBA"):
+            Image_origin_loader = Image_origin_loader.convert("RGBA")
+        
+        mode = Image_origin_loader.mode
+        data = Image_origin_loader.tobytes()
+        Display_image_out = pygame.image.fromstring(data, Image_Size, mode)
     if(Image_Index >= len(files)): 
-        Display_image_out = pygame.image.load("./konec.png")
+        pass
     else:
         Image_Index = Image_Index + 1
     #print(files[Image_Index])
@@ -64,8 +75,8 @@ def Temp_image_edit():
     return
     
 
-
-images_nemes()
+CheckForDirectories()
+ImagesNames()
 pygame.init()
 pygame.freetype.init()
 
