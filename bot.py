@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageSequence
 from os import walk
 import os.path
 import random
@@ -14,12 +14,13 @@ Display_image_out = pygame.image.load("zacatek.png")
 Image_Index = 0
 name = ""
 editing_mode = False
+animated_gif_warning = False
 
 def CheckForDirectories():
     #took me like 10 minutes to realize os.path.isfile does not work on directories
-    if not os.path.exists("./import"):
+    if (not os.path.exists("./import")):
         os.mkdir("./import")
-    if not os.path.exists("./export"):
+    if (not os.path.exists("./export")):
         os.mkdir("./export")
 
 
@@ -31,10 +32,24 @@ def velmi_dulezita_random_int_funkce():
 
 def Save_current_image():
     global name
-    if(name == ""):
-        Image_origin_loader_for_rendering.save("./export/nauc_se_kurva_pojemnovavat_veci_ty_kokot"+str(velmi_dulezita_random_int_funkce())+".gif")
+    if(files[Image_Index-1][-4:] == ".gif"):
+        if(getattr(Image_origin_loader_for_rendering, "is_animated", False)):
+            
+            gif_frames = [gif_frame.copy() for gif_frame in ImageSequence.Iterator(Image_origin_loader_for_rendering)]
+            if(name == ""):
+                gif_frames[0].save("./export/nauc_se_kurva_pojemnovavat_veci_ty_kokot"+str(velmi_dulezita_random_int_funkce())+".gif",
+                save_all = True, append_images=gif_frames[1:],optimize=False,loop=0,duration=100,)
+            else:
+                gif_frames[0].save("./export/"+name+".gif",
+                save_all = True, append_images=gif_frames[1:],optimize=False,loop=0,duration=100,)
+            pass
+        else:
+            pass
     else:
-        Image_origin_loader_for_rendering.save("./export/"+name+".gif")
+        if(name == ""):
+            Image_origin_loader_for_rendering.save("./export/nauc_se_kurva_pojemnovavat_veci_ty_kokot"+str(velmi_dulezita_random_int_funkce())+".gif")
+        else:
+            Image_origin_loader_for_rendering.save("./export/"+name+".gif")
     name = ""
     return
 
@@ -51,12 +66,17 @@ def Temp_image_edit():
     global Display_image_out
     global editing_mode
     global Image_origin_loader_for_rendering
+    global animated_gif_warning
     
+    animated_gif_warning = False
     if(Image_Index >= len(files)): 
         Display_image_out = pygame.image.load("./konec.png")
     else:
         Image_origin_loader_for_rendering = Image.open("./import/"+files[Image_Index])
         Image_origin_loader = Image_origin_loader_for_rendering.resize(Image_Size)
+        if(getattr(Image_origin_loader_for_rendering, "is_animated", False)):
+            animated_gif_warning = True
+            print(animated_gif_warning)
         
         if Image_origin_loader.mode not in ("RGB", "RGBA"):
             Image_origin_loader = Image_origin_loader.convert("RGBA")
@@ -68,7 +88,6 @@ def Temp_image_edit():
         pass
     else:
         Image_Index = Image_Index + 1
-    #print(files[Image_Index])
     print(Image_Index)
     print(len(files))
     editing_mode = True
@@ -81,13 +100,15 @@ pygame.init()
 pygame.freetype.init()
 
 font = pygame.freetype.SysFont(None, 24)
-window = pygame.display.set_mode((800,800))
+window = pygame.display.set_mode((1200,700))
 pygame.display.set_caption("naming thing")
 
 run = True
 while run:
     pygame.time.delay(50)
     window.fill("#aae5a4")
+    if(animated_gif_warning == True):
+        window.blit(font.render("Warning: you are editing an animated gif. The gifs are fixed to 10fps for now.", (0, 0, 0))[0], (100, 70))
     window.blit(Display_image_out,(100,100))
     window.blit(font.render(name, (0, 0, 0))[0], (100, 260))
     pygame.display.update()
