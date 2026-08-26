@@ -1,12 +1,9 @@
 from PIL import Image
 from os import walk
 import random
-import ast
-import cv2
-import sys
 import keyboard
 import pygame
-import random
+
 
 
 files = []
