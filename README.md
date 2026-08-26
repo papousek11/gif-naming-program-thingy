@@ -1,0 +1,1 @@
+just put your images into the input folder, launch the program, name your gifs, and you can now enjoy your gifs in the export folder
