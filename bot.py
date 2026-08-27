@@ -44,7 +44,10 @@ def Save_current_image():
                 save_all = True, append_images=gif_frames[1:],optimize=False,loop=0,duration=100,)
             pass
         else:
-            pass
+            if(name == ""):
+                Image_origin_loader_for_rendering.save("./export/nauc_se_kurva_pojemnovavat_veci_ty_kokot"+str(velmi_dulezita_random_int_funkce())+".gif")
+            else:
+                Image_origin_loader_for_rendering.save("./export/"+name+".gif")
     else:
         if(name == ""):
             Image_origin_loader_for_rendering.save("./export/nauc_se_kurva_pojemnovavat_veci_ty_kokot"+str(velmi_dulezita_random_int_funkce())+".gif")
